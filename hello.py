@@ -1,0 +1,1 @@
+print("hej från stock-analyzer") 
