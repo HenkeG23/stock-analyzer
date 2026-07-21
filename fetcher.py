@@ -1,6 +1,5 @@
 
 import yfinance as yf
-import pandas as pd
 
 def get_stock_data(ticker: str):
     stock = yf.Ticker(ticker)
@@ -13,23 +12,21 @@ def get_stock_data(ticker: str):
 
 from ratios import get_key_ratios
 
-tabell = {
-    "Exchange": ["Stockholm OMX", "Frankfurt"],
-    "Suffix": [".ST", ".DE"],
-    "Exempel": ["VOLV-B.ST", "SAP.DE"]
-}
+def get_price_history(ticker: str, period: str = "6mo"):
+    stock = yf.Ticker(ticker)
+    history = stock.history(period)
 
-df = pd.DataFrame(tabell)
+    if history.empty:
+        raise ValueError(f"No historic data for ticker '{ticker}'.")
+    
+    return history
+
 
 if __name__ == "__main__":
-    print(df)    
+       
     ticker = input("Ticker: ")
     try:
         data = get_stock_data(ticker)
-
-        for key in sorted(data.keys()):
-            print(key)
-
         ratios = get_key_ratios(data)
         for name, value in ratios.items():
             print(f"{name}: {value}")
