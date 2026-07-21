@@ -26,6 +26,10 @@ if __name__ == "__main__":
     ticker = input("Ticker: ")
     try:
         data = get_stock_data(ticker)
+
+        for key in sorted(data.keys()):
+            print(key)
+
         ratios = get_key_ratios(data)
         for name, value in ratios.items():
             print(f"{name}: {value}")

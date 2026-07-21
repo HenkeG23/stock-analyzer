@@ -14,8 +14,10 @@ if st.button("Analyz"):
 
         st.subheader(f"Key metrics for {ticker}")
         for name, value in ratios.items():
-            if name == "Market cap":
+            if name in ["Market cap", "Free cash flow"]:
                 st.markdown(f"**{name}:** {format_large_numbers(value)}")
+            elif name == "Dividend Yield":
+                st.markdown(f"**{name}:** {value}%")
             else:
                 st.markdown(f"**{name}:** {value}")
     
