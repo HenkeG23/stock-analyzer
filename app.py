@@ -1,6 +1,7 @@
 import streamlit as st
 from fetcher import get_stock_data
 from ratios import get_key_ratios
+from formatters import format_large_numbers
 
 st.title("Stock Analyzer")
 
@@ -13,8 +14,11 @@ if st.button("Analyz"):
 
         st.subheader(f"Key metrics for {ticker}")
         for name, value in ratios.items():
-            st.markdown(f"**{name}: **{value}")
+            if name == "Market cap":
+                st.markdown(f"**{name}:** {format_large_numbers(value)}")
+            else:
+                st.markdown(f"**{name}:** {value}")
     
     except ValueError as e:
-        st.error(str(e))
+        st.error(str(e)) 
 
