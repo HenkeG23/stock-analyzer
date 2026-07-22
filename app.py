@@ -1,5 +1,6 @@
 import streamlit as st
-from fetcher import get_stock_data, get_price_history
+import pandas as pd
+from fetcher import get_stock_data, get_price_history, get_put_call_ratio
 from ratios import get_key_ratios
 from formatters import format_large_numbers
 
@@ -37,7 +38,7 @@ if "ticker" in st.session_state:
         st.subheader("Price Development")
 
         period_options = {
-            "1 Month": "1mo",
+        "1 Month": "1mo",
         "6 Months": "6mo",
         "1 Year": "1y",
         "5 Years": "5y",
@@ -50,6 +51,23 @@ if "ticker" in st.session_state:
 
         history = get_price_history(st.session_state.ticker, period=selected_period)
         st.line_chart(history["Close"])
+
+        st.subheader("Put/Call Ratio")
+
+        try:
+            pc_data = get_put_call_ratio(st.session_state.ticker)
+            
+            st.metric(label="Total Put/Call Ratio", value=pc_data["total"])
+            
+            ratio_df = pd.DataFrame(
+                list(pc_data["per_expiration"].items()),
+                columns=["Expiration", "Ratio"]
+            ).set_index("Expiration")
+            
+            st.bar_chart(ratio_df)
+
+        except ValueError as e:
+            st.info(str(e))
 
     except ValueError as e:
         st.error(str(e))

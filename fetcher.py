@@ -21,6 +21,40 @@ def get_price_history(ticker: str, period: str = "6mo"):
     
     return history
 
+def get_put_call_ratio(ticker: str):
+    stock = yf.Ticker(ticker)
+    expirations = stock.options
+
+    if not expirations:
+        raise ValueError(f"No data available for '{ticker}'.")
+
+    per_expiration = {}
+    total_put_volume = 0
+    total_call_volume = 0
+
+    for date in expirations:
+        chain = stock.option_chain(date)
+        put_volume = chain.puts["volume"].sum()
+        call_volume = chain.calls["volume"].sum()
+
+        total_put_volume += put_volume
+        total_call_volume += call_volume
+
+        if call_volume > 0:
+            per_expiration[date] = round(float(put_volume) / float(call_volume), 2)
+        else:
+            per_expiration[date] = None
+
+    if total_call_volume > 0:
+        total_ratio = round(float(total_put_volume) / float(total_call_volume), 2)
+    else:
+        total_ratio = None
+
+    return {
+        "per_expiration": per_expiration,
+        "total": total_ratio,
+    }
+
 
 if __name__ == "__main__":
        
@@ -33,4 +67,4 @@ if __name__ == "__main__":
     except ValueError as e:
         print(e)
 
-    
+
