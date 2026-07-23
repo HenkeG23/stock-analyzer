@@ -3,6 +3,7 @@ import pandas as pd
 from fetcher import get_stock_data, get_price_history, get_put_call_ratio
 from ratios import get_key_ratios
 from formatters import format_large_numbers
+from risk_metrics import calculate_returns, calculate_sharpe_ratio, calculate_sortino_ratio, calculate_max_drawdown
 
 st.title("Stock Analyzer")
 
@@ -68,6 +69,40 @@ if "ticker" in st.session_state:
 
         except ValueError as e:
             st.info(str(e))
+
+        st.subheader("Risk-Adjusted Metrics")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            risk_period_label = st.selectbox(
+                "Period for risk calculations",
+                ["1 Year", "2 Years", "3 Years"],
+                index=2
+            )
+        with col2:
+            risk_free_rate_input = st.number_input(
+                "Risk-free rate (%)",
+                min_value=0.0,
+                max_value=10.0,
+                value=2.0,
+                step=0.1
+            )
+
+        risk_period_map = {"1 Year": "1y", "2 Years": "2y", "3 Years": "3y"}
+        risk_period = risk_period_map[risk_period_label]
+        risk_free_rate = risk_free_rate_input / 100
+
+        risk_history = get_price_history(st.session_state.ticker, period=risk_period)
+        returns = calculate_returns(risk_history)
+
+        sharpe = calculate_sharpe_ratio(returns, risk_free_rate)
+        sortino = calculate_sortino_ratio(returns, risk_free_rate)
+        max_dd = calculate_max_drawdown(risk_history)
+
+        m1, m2, m3 = st.columns(3)
+        m1.metric(label="Sharpe Ratio", value=sharpe)
+        m2.metric(label="Sortino Ratio", value=sortino)
+        m3.metric(label="Max Drawdown", value=f"{max_dd}%")
 
     except ValueError as e:
         st.error(str(e))
