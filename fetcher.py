@@ -1,6 +1,8 @@
 
 import yfinance as yf
+import streamlit as st
 
+@st.cache_data(ttl=300)
 def get_stock_data(ticker: str):
     stock = yf.Ticker(ticker)
     info = stock.info
@@ -12,6 +14,7 @@ def get_stock_data(ticker: str):
 
 from ratios import get_key_ratios
 
+@st.cache_data(ttl=300)
 def get_price_history(ticker: str, period: str = "6mo"):
     stock = yf.Ticker(ticker)
     history = stock.history(period)
@@ -20,7 +23,7 @@ def get_price_history(ticker: str, period: str = "6mo"):
         raise ValueError(f"No historic data for ticker '{ticker}'.")
     
     return history
-
+@st.cache_data(ttl=300)
 def get_put_call_ratio(ticker: str):
     stock = yf.Ticker(ticker)
     expirations = stock.options
